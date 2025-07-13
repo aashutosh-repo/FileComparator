@@ -1,0 +1,58 @@
+<div class="toolbar">
+  <button (click)="loadFile('left')">Load File 1</button>
+  <button (click)="loadFile('right')">Load File 2</button>
+    <button (click)="saveFiles('left')" [disabled]="!file1">💾 Save File 1</button>
+  <button (click)="saveFiles('right')" [disabled]="!file2">💾 Save File 2</button>
+</div>
+<div class="file-compare-container">
+  <!-- File 1 -->
+  <div class="file-side">
+    <div class="file-input">
+      <input class="path" [value]="file1" readonly />
+
+      <app-file-upload-button (click)="loadFile('left')"></app-file-upload-button>
+      <button class="save-button" (click)="saveFiles('left')" [disabled]="!file1">💾</button>
+      <!-- <label class="file-upload-icon" style="display: inline-block; background: #ccc; padding: 5px;">
+        <input type="file" hidden/>
+        <img src="assets/icons/icons8-file-480.svg" alt="Upload file" width="32" height="32" />
+      </label> -->
+
+      <!-- <button type="button" (click)="loadFile('left')">Open F1</button> -->
+    </div>
+    <div class="column">
+      <div *ngFor="let line of lines1; let i = index" class="line-row">
+        <div class="line"
+          [ngClass]="getLineDiffClass(line, lines2[i] || '')"
+          [innerHTML]="getHighlightedLine(line, lines2[i] || '', 'left')">
+        </div>
+        <div class="arrow-cell" *ngIf="isDiff(i)">
+          <button class="arrow arrow-button-left" (click)="copyLine(i, 'leftToRight')" title="Copy →"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File 2 -->
+  <div class="file-side">
+    <div class="file-input">
+      <input class="path" [value]="file2" readonly />
+
+      <!-- <button type="button" (click)="loadFile('right')">Open F2</button> -->
+      <button class="save-button"  (click)="saveFiles('right')" [disabled]="!file2">💾</button>
+      <app-file-upload-button (click)="loadFile('right')"></app-file-upload-button>
+
+
+    </div>
+    <div class="column">
+      <div *ngFor="let line of lines2; let i = index" class="line-row">
+        <div class="line"
+          [ngClass]="getLineDiffClass(lines1[i] || '', line)"
+          [innerHTML]="getHighlightedLine(lines1[i] || '', line, 'right')">
+        </div>
+        <div class="arrow-cell" *ngIf="isDiff(i)">
+          <button class="arrow arrow-button-right" (click)="copyLine(i, 'rightToLeft')" title="Copy ←"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

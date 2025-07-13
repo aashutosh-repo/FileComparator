@@ -1,0 +1,135 @@
+.same {
+  background: #e0ffe0;
+  color: green;
+}
+
+.added {
+  background: #e0e0ff;
+  color: red;
+}
+
+.removed {
+  background: #ffe0e0;
+  color: black;;
+}
+
+.toolbar {
+  margin-bottom: 10px;
+
+  button {
+    margin-right: 10px;
+  }
+}
+
+.arrow {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background:coral;
+  clip-path: polygon(0 31%, 63.2% 31%, 63.2% 0, 100% 50%, 63.2% 100%, 63.2% 69%, 0 69%);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.arrow:hover {
+  background-color: coral;
+  // transform: scale(-1.05);
+}
+
+.arrow-button-right {
+  background-color: lightcoral; // ✅ Green, left → right
+  transform: scaleX(-1);
+}
+
+.arrow-button-left {
+  background-color: lightgreen; // ✅ Red, right ← left
+}
+
+
+.file-compare-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+
+  .file-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .file-input {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      .path {
+        flex: 1;
+        border: 1px solid #ccc;
+        padding: 5px;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+
+      button {
+        padding: 0px 10px;
+      }
+    }
+
+    .column {
+      border: 1px solid #ccc;
+      padding: 5px;
+      background: #f5f5f5;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 500px;
+      overflow-y: auto;
+
+      .line-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2px;
+
+        .line {
+          flex: 1;
+          padding: 2px 6px;
+          border-radius: 4px;
+          white-space: pre-wrap;
+        }
+
+        .arrow-cell {
+          margin-left: 6px;
+        }
+      }
+          
+    }
+
+  }
+}
+.file-upload-button:hover{
+  background-color: black;
+
+}
+
+
+.save-button {
+  background-color: transparent;
+  border: none;
+  font-size: 20px;          /* ⬆️ Increase icon size */
+  height: 29px;             /* ⬆️ Increase button size */
+  width: 29px;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  display: flex;            /* ✅ Center content */
+  align-items: center;      /* ✅ Vertical center */
+  justify-content: center;  /* ✅ Horizontal center */
+  padding: 0;
+  line-height: 1;
+}
+
+.save-button:hover {
+  background-color: #217474;
+  cursor: pointer;
+  border-radius: 50%;
+}

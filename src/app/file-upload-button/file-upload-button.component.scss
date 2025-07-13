@@ -1,0 +1,34 @@
+.file-upload-button {
+    background-color: #b32121;
+    border-radius: 50%;
+    border-color: whitesmoke;
+    height: 80%;
+    overflow: hidden;
+    position: relative;
+    width: 80%;
+
+  &::after {
+    content: '⇪';
+    color: #fff;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  &:hover {
+    background-color: rgb(87, 150, 79);
+  }
+
+  input[type="file"] {
+        font-size: 1px;
+        left: 0;
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        cursor: pointer;
+    }
+}
+
+.file-info {
+  color: #999;
+  font-family: Lato;
+  margin-left: 0.5rem;
+}
