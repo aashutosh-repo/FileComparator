@@ -15,13 +15,6 @@ declare global {
     };
   }
 }
-declare global {
-  interface Window {
-    electronAPI2: {
-      saveFile: (filePath: string, content: string) => Promise<{ success: boolean, error?: string }>;
-    };
-  }
-}
 
 @Component({
   selector: 'app-root',
@@ -45,9 +38,9 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-      if (isPlatformBrowser(this.platformId)) {
-    console.log('electronAPI:', window.electronAPI);
-  }
+    if (isPlatformBrowser(this.platformId)) {
+      console.log('electronAPI:', window.electronAPI);
+    }
   }
 
   dmp = new DiffMatchPatch();
@@ -172,6 +165,33 @@ debugger; // Ensure electronAPI is available
     }
   }
 
+  onDragOver(event: DragEvent) {
+  event.preventDefault();
+  (event.currentTarget as HTMLElement).classList.add('drag-over');
+}
 
-  
+onDragLeave(event: DragEvent) {
+  (event.currentTarget as HTMLElement).classList.remove('drag-over');
+}
+
+async onFileDrop(event: DragEvent, target: 'left' | 'right') {
+  event.preventDefault();
+  (event.currentTarget as HTMLElement).classList.remove('drag-over');
+
+  const file = event.dataTransfer?.files?.[0];
+  if (!file) return;
+
+  const content = await file.text();
+  const filePath = (file as any).path; // ✅ Available in Electron
+  console.log("File PAth",file, content);
+
+  if (target === 'left') {
+    this.file1 = filePath || file.name;
+    this.lines1 = content.split(/\r?\n/);
+  } else {
+    this.file2 = filePath || file.name;
+    this.lines2 = content.split(/\r?\n/);
+  }
+}
+ 
 }

@@ -1,3 +1,8 @@
+@use '../styles.scss' as *;
+@use '../styles/mixins' as *;
+
+$text-box-size: 550px;
+
 .same {
   background: #e0ffe0;
   color: green;
@@ -51,6 +56,15 @@
   display: flex;
   gap: 20px;
   align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+
+  // Mobile layout
+  @include respond-to(md) {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
 
   .file-side {
     flex: 1;
@@ -84,6 +98,7 @@
       white-space: pre-wrap;
       max-height: 500px;
       overflow-y: auto;
+      height: $text-box-size;
 
       .line-row {
         display: flex;
@@ -132,4 +147,26 @@
   background-color: #217474;
   cursor: pointer;
   border-radius: 50%;
+}
+
+.drop-zone {
+  border: 2px dashed #bbb;
+  padding: 215px 0px;
+  text-align: center;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #666;
+  font-size: large;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+  background-color: #e6f7ff;
+  border-color: #3399ff;
+  color: #000;
+  font-weight: 500;
+  font-size: large;
 }

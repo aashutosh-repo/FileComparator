@@ -20,6 +20,13 @@
       <!-- <button type="button" (click)="loadFile('left')">Open F1</button> -->
     </div>
     <div class="column">
+      <div class="drop-zone"
+        *ngIf="!file1"
+        (drop)="onFileDrop($event, 'left')"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)">
+        <p>📂 Drag File 1 Here</p>
+      </div>
       <div *ngFor="let line of lines1; let i = index" class="line-row">
         <div class="line"
           [ngClass]="getLineDiffClass(line, lines2[i] || '')"
@@ -44,6 +51,13 @@
 
     </div>
     <div class="column">
+      <div class="drop-zone"
+        *ngIf="!file2"
+        (drop)="onFileDrop($event, 'right')"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)">
+        <p>📂 Drag File 2 Here</p>
+      </div>
       <div *ngFor="let line of lines2; let i = index" class="line-row">
         <div class="line"
           [ngClass]="getLineDiffClass(lines1[i] || '', line)"
