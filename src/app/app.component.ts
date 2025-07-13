@@ -4,6 +4,7 @@ import DiffMatchPatch, { Diff }  from 'diff-match-patch';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; 
 import { ViewEncapsulation } from '@angular/core';
 import { FileUploadButtonComponent } from './file-upload-button/file-upload-button.component';
+import { retry } from 'rxjs';
 
 
 declare global {
@@ -174,12 +175,22 @@ onDragLeave(event: DragEvent) {
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 }
 
+allowedExtensions =['.txt', '.java', '.py', '.csv', '.json', '.xml', '.html', '.css', '.js', '.ts', '.md'] ;
+
+handleValidExtensions(fileName:string) : boolean{
+  return this.allowedExtensions.some(ext => fileName.toLocaleLowerCase().endsWith(ext))
+}
 async onFileDrop(event: DragEvent, target: 'left' | 'right') {
   event.preventDefault();
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 
   const file = event.dataTransfer?.files?.[0];
   if (!file) return;
+
+  if(!this.handleValidExtensions(file.name)){
+    alert('❌ Unsupported file type. Please drop a supported text/code file.');
+    return;
+  }
 
   const content = await file.text();
   const filePath = (file as any).path; // ✅ Available in Electron
