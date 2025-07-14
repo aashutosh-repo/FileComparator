@@ -24,7 +24,16 @@ app.whenReady().then(() => {
 });
 
 ipcMain.handle('select-file', async () => {
-  const result = await dialog.showOpenDialog({ properties: ['openFile'] });
+  const result = await dialog.showOpenDialog({ properties: ['openFile'],
+      filters: [
+        {
+          name: 'Supported Files',
+          extensions: ['txt', 'java', 'py', 'csv', 'json', 'xml', 'html', 'css', 'js', 'ts', 'md'],
+        },
+      ],
+    });
+  });
+  
   if (!result.canceled && result.filePaths.length > 0) {
     const filePath = result.filePaths[0];
     const content = fsPromises.readFileSync(filePath, 'utf8');
