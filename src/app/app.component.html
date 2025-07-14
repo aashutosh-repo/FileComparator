@@ -9,15 +9,14 @@
   <div class="file-side">
     <div class="file-input">
       <input class="path" [value]="file1" readonly />
-
       <app-file-upload-button (click)="loadFile('left')"></app-file-upload-button>
       <button class="save-button" (click)="saveFiles('left')" [disabled]="!file1">💾</button>
-      <!-- <label class="file-upload-icon" style="display: inline-block; background: #ccc; padding: 5px;">
-        <input type="file" hidden/>
-        <img src="assets/icons/icons8-file-480.svg" alt="Upload file" width="32" height="32" />
-      </label> -->
-
-      <!-- <button type="button" (click)="loadFile('left')">Open F1</button> -->
+    </div>
+    <div class="file-meta" *ngIf="file1Metadata">
+      <span>File Info: </span>
+      <span>📅 {{ file1Metadata.modifiedAt }}</span> |
+      <span>📦 {{ file1Metadata.size }}</span> |
+      <span>📁 {{ file1Metadata.type }}</span>
     </div>
     <div class="column">
       <div class="drop-zone"
@@ -47,8 +46,12 @@
       <!-- <button type="button" (click)="loadFile('right')">Open F2</button> -->
       <button class="save-button"  (click)="saveFiles('right')" [disabled]="!file2">💾</button>
       <app-file-upload-button (click)="loadFile('right')"></app-file-upload-button>
-
-
+    </div>
+    <div class="file-meta" *ngIf="file2Metadata">
+      <span>File Info: </span>
+      <span>📅 {{ file2Metadata.modifiedAt }}</span> |
+      <span>📦 {{ file2Metadata.size }}</span> |
+      <span>📁 {{ file2Metadata.type }}</span>
     </div>
     <div class="column">
       <div class="drop-zone"

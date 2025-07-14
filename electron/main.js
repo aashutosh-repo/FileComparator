@@ -32,7 +32,6 @@ ipcMain.handle('select-file', async () => {
         },
       ],
     });
-  });
   
   if (!result.canceled && result.filePaths.length > 0) {
     const filePath = result.filePaths[0];

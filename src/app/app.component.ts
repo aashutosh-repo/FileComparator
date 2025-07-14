@@ -34,6 +34,9 @@ export class AppComponent implements OnInit {
   diffs2: SafeHtml[] = [];
   file1Lines: string[] = [];
   file2Lines: string[] = [];
+  file1Metadata : {size: string; modifiedAt?: string; type?: string} | null = null;
+  file2Metadata : {size: string; modifiedAt?: string; type?: string} | null = null;
+  
   constructor(private sanitizer: DomSanitizer,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
@@ -156,8 +159,6 @@ isDiff(index: number): boolean {
     const lines = side === 'left' ? this.lines1 : this.lines2;
     const content = lines.join('\n');
 
-    console.log(window.electronAPI);  
-debugger; // Ensure electronAPI is available
     const result = await window.electronAPI.saveFile(filePath, content);
     if (result.success) {
       alert(`File saved: ${filePath}`);
@@ -192,17 +193,36 @@ async onFileDrop(event: DragEvent, target: 'left' | 'right') {
     return;
   }
 
+  const metaData = {
+    size : this.formatBytes(file.size),
+    modifiedAt: file.lastModified ? new Date (file.lastModified).toLocaleString():'',
+    type: file.name.split('.').pop()?.toUpperCase()?? 'UNKNOWN',
+  };
+  console.log(metaData)
+
   const content = await file.text();
-  const filePath = (file as any).path; // ✅ Available in Electron
-  console.log("File PAth",file, content);
+  const filePath = (file as any).path;
 
   if (target === 'left') {
     this.file1 = filePath || file.name;
     this.lines1 = content.split(/\r?\n/);
+    this.file1Metadata = metaData;
   } else {
     this.file2 = filePath || file.name;
     this.lines2 = content.split(/\r?\n/);
+    this.file2Metadata = metaData;
   }
 }
+
+  private formatBytes(bytes: number){
+    if(bytes === 0) return '0 B';
+    const units = ['Bytes','KB', 'MB', 'GB'];
+    let i= 0;
+    while(bytes >= 1024 && i < units.length - 1) {
+      bytes /= 1024;
+      i++;
+      }
+      return `${bytes.toFixed(1)} ${units[i]}`;
+  }
  
 }
