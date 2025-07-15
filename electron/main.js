@@ -1,7 +1,9 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fsPromises = require('fs');
+const { fileURLToPath } = require('url');
 
+const watchers = new Map();
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
@@ -54,6 +56,26 @@ ipcMain.handle('save-file', async (event, filePath, content) => {
     return { success: false, error: err.message };
   }
 });
+
+ipcMain.handle('watch-file', (event, filePath) => {
+  if(watchers.has(filePath)) return;
+  const callback = (curr, prev) => {
+    if (curr.mtime > prev.mtime) {
+      event.sender.send('file-updated',filePath);
+    }
+  }
+  fsPromises.watchFile(filePath,{interval: 1000},callback);
+  watchers.set(filePath,callback);
+});
+
+ipcMain.handle('unwatch-file',(event,filePath) =>{
+  const cb = watchers.get(filePath);
+  if(cb){
+    fsPromises.unwatchFile(filePath,cb);
+    watchers.delete(filePath);
+  }
+});
+
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
