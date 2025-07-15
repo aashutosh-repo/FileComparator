@@ -5,15 +5,17 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ViewEncapsulation } from '@angular/core';
 import { FileUploadButtonComponent } from './file-upload-button/file-upload-button.component';
 import { retry } from 'rxjs';
+import { FileMetaData, getFileMetaData } from './util/file-utils';
 
 
 declare global {
   interface Window {
     electronAPI: {
       selectFile: () => Promise<{ path: string, content: string } | null>;
-      selectFile2: () => Promise<{ path: string, content: string } | null>;
       saveFile: (filePath: string, content: string) => Promise<{ success: boolean, error?: string }>;
-    };
+      watchFile: (filePath: string) => Promise<{ success: boolean, error?: string }>;
+      unwatchFile: (filePath: string) => Promise<{ success: boolean, error?: string }>;
+      onFileUpdated: (callback: (filePath: string) => void) => void;    };
   }
 }
 
@@ -34,8 +36,12 @@ export class AppComponent implements OnInit {
   diffs2: SafeHtml[] = [];
   file1Lines: string[] = [];
   file2Lines: string[] = [];
-  file1Metadata : {size: string; modifiedAt?: string; type?: string} | null = null;
-  file2Metadata : {size: string; modifiedAt?: string; type?: string} | null = null;
+  // file1Metadata : {size: string; modifiedAt?: string; type?: string} | null = null;
+  // file2Metadata : {size: string; modifiedAt?: string; type?: string} | null = null;
+
+  file2Metadata!: FileMetaData;
+  file1Metadata!: FileMetaData;
+   metaData!: FileMetaData;
   
   constructor(private sanitizer: DomSanitizer,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -44,6 +50,18 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       console.log('electronAPI:', window.electronAPI);
+    
+      if (window?.electronAPI?.onFileUpdated) {
+        window.electronAPI.onFileUpdated((filePath: string) => {
+          const fileName = filePath.split(/[\\/]/).pop();
+          if (confirm(`${fileName} was modified externally. Reload it?`)) {
+            // this.reloadFileContent(filePath);
+            alert('File changed');
+          }
+        });
+      } else {
+        console.warn('⚠️ window.electronAPI or onFileUpdated is not available');
+      }
     }
   }
 
@@ -193,24 +211,19 @@ async onFileDrop(event: DragEvent, target: 'left' | 'right') {
     return;
   }
 
-  const metaData = {
-    size : this.formatBytes(file.size),
-    modifiedAt: file.lastModified ? new Date (file.lastModified).toLocaleString():'',
-    type: file.name.split('.').pop()?.toUpperCase()?? 'UNKNOWN',
-  };
-  console.log(metaData)
-
   const content = await file.text();
   const filePath = (file as any).path;
 
   if (target === 'left') {
     this.file1 = filePath || file.name;
     this.lines1 = content.split(/\r?\n/);
-    this.file1Metadata = metaData;
+    this.file1Metadata = getFileMetaData(file);
+    await window.electronAPI.watchFile(filePath)
   } else {
     this.file2 = filePath || file.name;
     this.lines2 = content.split(/\r?\n/);
-    this.file2Metadata = metaData;
+    this.file2Metadata = getFileMetaData(file);
+    await window.electronAPI.watchFile(filePath)
   }
 }
 

@@ -1,6 +1,4 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const { watchFile, unwatchFile } = require('fs');
-const { callbackify } = require('util');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   selectFile: () => ipcRenderer.invoke('select-file'),

@@ -1,7 +1,7 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fsPromises = require('fs');
-const { fileURLToPath } = require('url');
+const fs = require('fs');
 
 const watchers = new Map();
 function createWindow() {
@@ -11,6 +11,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
+      sandbox: false,
     },
   });
 
@@ -64,18 +65,17 @@ ipcMain.handle('watch-file', (event, filePath) => {
       event.sender.send('file-updated',filePath);
     }
   }
-  fsPromises.watchFile(filePath,{interval: 1000},callback);
+  fs.watchFile(filePath,{interval: 1000},callback);
   watchers.set(filePath,callback);
 });
 
 ipcMain.handle('unwatch-file',(event,filePath) =>{
   const cb = watchers.get(filePath);
   if(cb){
-    fsPromises.unwatchFile(filePath,cb);
+    fs.unwatchFile(filePath,cb);
     watchers.delete(filePath);
   }
 });
-
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
