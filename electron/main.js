@@ -77,6 +77,16 @@ ipcMain.handle('unwatch-file',(event,filePath) =>{
   }
 });
 
+ipcMain.handle('read-file-by-path', async (event, filePath) => {
+  try {
+    const content = fsPromises.readFileSync(filePath, 'utf8');
+    return { path: filePath, content };
+  } catch (err) {
+    return { error: err.message };
+  }
+});
+
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });

@@ -42,8 +42,6 @@
   <div class="file-side">
     <div class="file-input">
       <input class="path" [value]="file2" readonly />
-
-      <!-- <button type="button" (click)="loadFile('right')">Open F2</button> -->
       <button class="save-button"  (click)="saveFiles('right')" [disabled]="!file2">💾</button>
       <app-file-upload-button (click)="loadFile('right')"></app-file-upload-button>
     </div>

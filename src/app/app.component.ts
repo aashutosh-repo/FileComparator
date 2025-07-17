@@ -1,11 +1,12 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, NgZone, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import DiffMatchPatch, { Diff }  from 'diff-match-patch';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; 
 import { ViewEncapsulation } from '@angular/core';
 import { FileUploadButtonComponent } from './file-upload-button/file-upload-button.component';
 import { retry } from 'rxjs';
 import { FileMetaData, getFileMetaData } from './util/file-utils';
+import { Console } from 'node:console';
 
 
 declare global {
@@ -15,6 +16,7 @@ declare global {
       saveFile: (filePath: string, content: string) => Promise<{ success: boolean, error?: string }>;
       watchFile: (filePath: string) => Promise<{ success: boolean, error?: string }>;
       unwatchFile: (filePath: string) => Promise<{ success: boolean, error?: string }>;
+      readFileByPath: (filePath: string) => Promise<{path: string, content: string}>,
       onFileUpdated: (callback: (filePath: string) => void) => void;    };
   }
 }
@@ -44,7 +46,8 @@ export class AppComponent implements OnInit {
    metaData!: FileMetaData;
   
   constructor(private sanitizer: DomSanitizer,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -52,10 +55,28 @@ export class AppComponent implements OnInit {
       console.log('electronAPI:', window.electronAPI);
     
       if (window?.electronAPI?.onFileUpdated) {
-        window.electronAPI.onFileUpdated((filePath: string) => {
+        window.electronAPI.onFileUpdated(async (filePath: string) => {
           const fileName = filePath.split(/[\\/]/).pop();
           if (confirm(`${fileName} was modified externally. Reload it?`)) {
             // this.reloadFileContent(filePath);
+            const result = await window.electronAPI.readFileByPath(filePath);
+            const lines = result.content.split('\n');
+            console.log(result);
+            this.zone.run(() => {
+            if (!result) {
+              console.error('Failed to reload file:');
+              return;
+            }else if (filePath === this.file1){
+              this.lines1= lines;
+              this.file1Lines = lines;
+              console.log(this.file1Lines);
+            }else if(filePath === this.file2){
+              this.lines2 = lines;
+              this.file2Lines = lines;
+            }
+            this.computeLineDiffs();
+            });
+
             alert('File changed');
           }
         });
@@ -78,6 +99,7 @@ export class AppComponent implements OnInit {
         this.file2 = result.path;
         this.lines2 = lines;
       }
+      window.electronAPI.watchFile(result.path);
       this.computeLineDiffs();
     }
   }
@@ -157,6 +179,7 @@ selectFile(index: number) {
       } else {
         this.file2 = filePath;
       }
+      window.electronAPI.watchFile(filePath);
     }
   }
 
@@ -218,12 +241,12 @@ async onFileDrop(event: DragEvent, target: 'left' | 'right') {
     this.file1 = filePath || file.name;
     this.lines1 = content.split(/\r?\n/);
     this.file1Metadata = getFileMetaData(file);
-    await window.electronAPI.watchFile(filePath)
+    // await window.electronAPI.watchFile('C:\Users\Ashutosh\Desktop\file1.txt')
   } else {
     this.file2 = filePath || file.name;
     this.lines2 = content.split(/\r?\n/);
     this.file2Metadata = getFileMetaData(file);
-    await window.electronAPI.watchFile(filePath)
+    // await window.electronAPI.watchFile('C:\Users\Ashutosh\Desktop\file1.txt')
   }
 }
 
